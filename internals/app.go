@@ -1,9 +1,9 @@
 package internals
 
 import (
+	"avitotask/banners-service/internals/routes"
 	"avitotask/banners-service/internals/utils"
 	"avitotask/banners-service/models"
-	"avitotask/banners-service/routes"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"os"
