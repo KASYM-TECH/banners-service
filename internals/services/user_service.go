@@ -3,9 +3,9 @@ package services
 import (
 	"avitotask/banners-service/handlers/dto"
 	"avitotask/banners-service/internals/auth"
+	"avitotask/banners-service/internals/auth/jwt"
 	"avitotask/banners-service/internals/code"
 	"avitotask/banners-service/internals/repositories"
-	"avitotask/banners-service/internals/utils"
 	"avitotask/banners-service/models"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -60,7 +60,7 @@ func (u UserServiceImpl) SignupUser(c *gin.Context) {
 	}
 
 	var customErr *code.ResultCode
-	user.HashedPassword, customErr = utils.GenerateHashedPassword(signupJson.Password)
+	user.HashedPassword, customErr = auth.GenerateHashedPassword(signupJson.Password)
 	if customErr != nil {
 		c.JSON(customErr.Code, customErr.Message)
 		return
@@ -87,17 +87,17 @@ func (u UserServiceImpl) LoginUser(c *gin.Context) {
 		return
 	}
 
-	if !utils.IsPasswordCorrect(user.HashedPassword, userLogin.Password) {
+	if !auth.IsPasswordCorrect(user.HashedPassword, userLogin.Password) {
 		c.JSON(http.StatusInternalServerError, code.Unauthorized)
 		return
 	}
 
-	refreshToken, genErr := auth.NewRefreshToken(user.UserID, &user.Role)
+	refreshToken, genErr := jwt.NewRefreshToken(user.UserID, &user.Role)
 	if genErr != nil {
 		c.JSON(http.StatusInternalServerError, code.InternalError)
 	}
 
-	accessToken, genErr := auth.NewAccessToken(user.UserID, &user.Role)
+	accessToken, genErr := jwt.NewAccessToken(user.UserID, &user.Role)
 	if genErr != nil {
 		c.JSON(http.StatusInternalServerError, code.InternalError)
 	}
