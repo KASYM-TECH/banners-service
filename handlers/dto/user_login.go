@@ -1,7 +1,6 @@
 package dto
 
-type UserSignupJson struct {
+type UserLoginJson struct {
 	Username string `json:"username" binding:"required"`
-	RoleID   int    `json:"role_id" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }

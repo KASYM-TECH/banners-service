@@ -11,7 +11,7 @@ import (
 
 var DB *gorm.DB
 
-func InitDB() {
+func InitDB() *gorm.DB {
 	dsn := strings.Join([]string{
 		"host=" + os.Getenv("DB_HOST"),
 		"user=" + os.Getenv("DB_USER"),
@@ -26,7 +26,7 @@ func InitDB() {
 	}
 	MigrateAll(db)
 	InitRoles(db)
-	DB = db
+	return db
 }
 
 func MigrateAll(db *gorm.DB) {
