@@ -26,7 +26,7 @@ func WireDI(db *gorm.DB) handlers.HttpHandlerImpl {
 	return handlers.NewHttpHandler(userService)
 }
 
-func SetupRouter() *gin.Engine {
+func SetupGin() *gin.Engine {
 	r := gin.Default()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
@@ -38,7 +38,7 @@ func SetupRouter() *gin.Engine {
 }
 
 func Start() {
-	r := SetupRouter()
+	r := SetupGin()
 	err := r.Run()
 	utils.HandleFatalError(err)
 }

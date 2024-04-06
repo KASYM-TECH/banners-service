@@ -1,4 +1,4 @@
-package auth
+package jwt
 
 import (
 	"avitotask/banners-service/config"

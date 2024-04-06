@@ -1,4 +1,4 @@
-package utils
+package jwt
 
 import (
 	"avitotask/banners-service/internals/code"
