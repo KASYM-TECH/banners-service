@@ -5,10 +5,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetRoutes(r *gin.Engine) {
+func SetRoutes(r *gin.Engine, handlers handlers.HttpHandlerImpl) {
 	api := r.Group("/api")
 
 	auth := api.Group("/auth/")
 
 	auth.POST("/signup", handlers.Signup)
+	auth.POST("/login", handlers.Login)
 }

@@ -8,21 +8,21 @@ import (
 
 func main() {
 	_ = godotenv.Load("banners-service.env")
-	models.InitDB()
+	db := models.InitDB()
 
-	if err := models.DB.Migrator().DropTable(&models.Banner{}); err != nil {
+	if err := db.Migrator().DropTable(&models.Banner{}); err != nil {
 		log.Fatal(err)
 	}
-	if err := models.DB.Migrator().DropTable(&models.User{}); err != nil {
+	if err := db.Migrator().DropTable(&models.User{}); err != nil {
 		log.Fatal(err)
 	}
-	if err := models.DB.Migrator().DropTable(&models.Role{}); err != nil {
+	if err := db.Migrator().DropTable(&models.Role{}); err != nil {
 		log.Fatal(err)
 	}
-	if err := models.DB.Migrator().DropTable(&models.Tag{}); err != nil {
+	if err := db.Migrator().DropTable(&models.Tag{}); err != nil {
 		log.Fatal(err)
 	}
-	if err := models.DB.Migrator().DropTable("banner_tag"); err != nil {
+	if err := db.Migrator().DropTable("banner_tag"); err != nil {
 		log.Fatal(err)
 	}
 }
