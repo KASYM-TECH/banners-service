@@ -32,7 +32,7 @@ func InitDB() *gorm.DB {
 func MigrateAll(db *gorm.DB) {
 	err := db.AutoMigrate(
 		&Role{},
-		&Tag{},
+		&BannerTag{},
 		&User{},
 		&Banner{},
 	)

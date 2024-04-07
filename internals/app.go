@@ -1,7 +1,8 @@
 package internals
 
 import (
-	"avitotask/banners-service/handlers"
+	"avitotask/banners-service/handlers/auth"
+	"avitotask/banners-service/handlers/banner"
 	"avitotask/banners-service/internals/repositories"
 	"avitotask/banners-service/internals/routes"
 	"avitotask/banners-service/internals/services"
@@ -18,27 +19,36 @@ func init() {
 	gin.SetMode(os.Getenv("GIN_MODE"))
 }
 
-func WireDI(db *gorm.DB) handlers.HttpHandlerImpl {
+func WireDI(db *gorm.DB) (auth.HttpHandlerImpl, banner.HttpHandlerImpl) {
 	userRepos := repositories.NewUserRepos(db)
 	roleRepos := repositories.NewRoleRepos(db)
-	userService := services.NewUserService(userRepos, roleRepos)
+	bannerRepos := repositories.NewBannerRepos(db)
+	tagRepos := repositories.NewTagRepos(db)
 
-	return handlers.NewHttpHandler(userService)
+	userService := services.NewUserService(userRepos, roleRepos)
+	bannerService := services.NewBannerService(bannerRepos, roleRepos, tagRepos)
+
+	authHandler := auth.NewAuthHttpHandler(userService)
+	bannerHandler := banner.NewBannerHttpHandler(bannerService)
+
+	return authHandler, bannerHandler
 }
 
-func SetupGin() *gin.Engine {
+func SetupServer() *gin.Engine {
 	r := gin.Default()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 	r.ForwardedByClientIP = true
 	db := models.InitDB()
-	h := WireDI(db)
-	routes.SetRoutes(r, h)
+	authHandler, bannerHandler := WireDI(db)
+	routers := routes.Routes{AuthHttpHandler: authHandler, BannerHttpHandler: bannerHandler}
+	routers.SetRoutes(r)
+
 	return r
 }
 
-func Start() {
-	r := SetupGin()
+func StartApp() {
+	r := SetupServer()
 	err := r.Run()
 	utils.HandleFatalError(err)
 }

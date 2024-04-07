@@ -5,15 +5,19 @@ var (
 		Code:    200,
 		Message: "Запрос выполнился без ошибок",
 	}
+	Created = ResultCode{
+		Code:    201,
+		Message: "Идентификатор созданного баннера",
+	}
 	BadRequest = ResultCode{
 		Code:    400,
-		Message: "Невалидный запрос",
+		Message: "Некоректные данные",
 	}
-	UserNotFound = ResultCode{
+	Unauthorized = ResultCode{
 		Code:    401,
 		Message: "Пользователь не авторизован",
 	}
-	Unauthorized = ResultCode{
+	Forbidden = ResultCode{
 		Code:    403,
 		Message: "Пользователь не имеет доступа",
 	}

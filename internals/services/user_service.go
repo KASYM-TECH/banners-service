@@ -1,7 +1,7 @@
 package services
 
 import (
-	"avitotask/banners-service/handlers/dto"
+	dto "avitotask/banners-service/handlers/auth/dto"
 	"avitotask/banners-service/internals/auth"
 	"avitotask/banners-service/internals/auth/jwt"
 	"avitotask/banners-service/internals/code"
@@ -30,24 +30,23 @@ func NewUserService(userRepos repositories.UserRepos, repos repositories.RoleRep
 }
 
 func (u UserServiceImpl) SignupUser(c *gin.Context) {
-	var signupJson dto.UserSignupJson
-	err := c.ShouldBindJSON(&signupJson)
+	var signupDTO dto.UserSignup
+	err := c.ShouldBindJSON(&signupDTO)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, code.BadRequest.SetMessage(err.Error()))
 		return
 	}
 
-	err = u.UserRepo.GetUserByName(signupJson.Username, &models.User{})
+	err = u.UserRepo.GetUserByName(signupDTO.Username, &models.User{})
 	if err == nil {
 		c.JSON(http.StatusBadRequest, code.BadRequest.SetMessage("Пользователь с таким именем уже существует"))
 		return
 	}
 
 	role := &models.Role{}
-	err = u.RoleRepo.GetRoleById(signupJson.RoleID, role)
-	if err != nil {
+	if err := u.RoleRepo.GetRoleById(signupDTO.RoleID, role); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(code.BadRequest.Code, code.BadRequest.SetMessage("Role with id = "+strconv.Itoa(signupJson.RoleID)+" does not exist"))
+			c.JSON(code.BadRequest.Code, code.BadRequest.SetMessage("Role with id = "+strconv.Itoa(signupDTO.RoleID)+" does not exist"))
 		}
 		c.JSON(code.InternalError.Code, code.InternalError.Message)
 		return
@@ -55,12 +54,12 @@ func (u UserServiceImpl) SignupUser(c *gin.Context) {
 
 	user := models.User{
 		UserID:   uuid.New().String(),
-		Username: signupJson.Username,
-		RoleID:   signupJson.RoleID,
+		Username: signupDTO.Username,
+		RoleID:   signupDTO.RoleID,
 	}
 
 	var customErr *code.ResultCode
-	user.HashedPassword, customErr = auth.GenerateHashedPassword(signupJson.Password)
+	user.HashedPassword, customErr = auth.GenerateHashedPassword(signupDTO.Password)
 	if customErr != nil {
 		c.JSON(customErr.Code, customErr.Message)
 		return
@@ -73,7 +72,7 @@ func (u UserServiceImpl) SignupUser(c *gin.Context) {
 }
 
 func (u UserServiceImpl) LoginUser(c *gin.Context) {
-	var userLogin *dto.UserLoginJson
+	var userLogin *dto.UserLogin
 	err := c.ShouldBindJSON(&userLogin)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, code.BadRequest.SetMessage(err.Error()))
@@ -83,26 +82,26 @@ func (u UserServiceImpl) LoginUser(c *gin.Context) {
 	user := models.User{}
 	err = u.UserRepo.GetUserByName(userLogin.Username, &user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, code.UserNotFound)
+		c.JSON(code.Unauthorized.Code, code.Unauthorized.Message)
 		return
 	}
 
 	if !auth.IsPasswordCorrect(user.HashedPassword, userLogin.Password) {
-		c.JSON(http.StatusInternalServerError, code.Unauthorized)
+		c.JSON(code.Unauthorized.Code, code.Unauthorized.Message)
 		return
 	}
 
 	refreshToken, genErr := jwt.NewRefreshToken(user.UserID, &user.Role)
 	if genErr != nil {
-		c.JSON(http.StatusInternalServerError, code.InternalError)
+		c.JSON(code.InternalError.Code, code.InternalError)
 	}
 
 	accessToken, genErr := jwt.NewAccessToken(user.UserID, &user.Role)
 	if genErr != nil {
-		c.JSON(http.StatusInternalServerError, code.InternalError)
+		c.JSON(code.InternalError.Code, code.InternalError)
 	}
 
-	jwtTokenResp := dto.JwtResp{RefreshToken: refreshToken, AccessToken: accessToken}
+	jwtTokenResp := dto.Jwt{RefreshToken: refreshToken, AccessToken: accessToken}
 
 	c.JSON(http.StatusOK, jwtTokenResp)
 }

@@ -6,14 +6,8 @@ import (
 )
 
 const (
-	AccessTokenExpiration                  = 5 * time.Minute
-	RefreshTokenExpiration                 = 5 * 24 * time.Hour
-	TokensCleanupPeriod                    = 30 * time.Minute
-	PasswordCost                           = 4
-	PasswordResetCodeLength                = 20
-	PasswordResetCodesExpiration           = 15 * time.Minute
-	PasswordResetCodesCacheCleanupInterval = 30 * time.Minute
-	StateStringLength                      = 20
+	RefreshTokenExpiration = 5 * 24 * time.Hour
+	PasswordCost           = 4
 )
 
 var (

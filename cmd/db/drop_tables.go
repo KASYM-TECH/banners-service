@@ -1,28 +1,32 @@
 package main
 
 import (
+	"avitotask/banners-service/internals/utils"
 	"avitotask/banners-service/models"
 	"github.com/joho/godotenv"
-	"log"
+	"gorm.io/gorm"
 )
 
 func main() {
 	_ = godotenv.Load("banners-service.env")
 	db := models.InitDB()
+	mustDropTables(db)
+}
 
+func mustDropTables(db *gorm.DB) {
 	if err := db.Migrator().DropTable(&models.Banner{}); err != nil {
-		log.Fatal(err)
+		utils.HandleFatalError(err)
 	}
 	if err := db.Migrator().DropTable(&models.User{}); err != nil {
-		log.Fatal(err)
+		utils.HandleFatalError(err)
 	}
 	if err := db.Migrator().DropTable(&models.Role{}); err != nil {
-		log.Fatal(err)
+		utils.HandleFatalError(err)
 	}
-	if err := db.Migrator().DropTable(&models.Tag{}); err != nil {
-		log.Fatal(err)
+	if err := db.Migrator().DropTable(&models.BannerTag{}); err != nil {
+		utils.HandleFatalError(err)
 	}
 	if err := db.Migrator().DropTable("banner_tag"); err != nil {
-		log.Fatal(err)
+		utils.HandleFatalError(err)
 	}
 }

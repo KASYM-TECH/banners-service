@@ -14,7 +14,7 @@ type RoleReposImpl struct {
 }
 
 func NewRoleRepos(db *gorm.DB) RoleRepos {
-	return &RoleReposImpl{db}
+	return RoleReposImpl{db}
 }
 
 func (r RoleReposImpl) GetRoleById(roleID int, role *models.Role) error {
